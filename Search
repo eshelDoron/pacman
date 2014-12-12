@@ -1,0 +1,192 @@
+# search.py
+# ---------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+"""
+In search.py, you will implement generic search algorithms which are called by
+Pacman agents (in searchAgents.py).
+"""
+
+import util
+
+
+class Node():
+    def __init__(self, cords, direction, cost, prev):
+        self.cords = cords
+        self.direction = direction
+        self.cost = cost
+        self.prev = prev
+
+
+class SearchProblem:
+    """
+    This class outlines the structure of a search problem, but doesn't implement
+    any of the methods (in object-oriented terminology: an abstract class).
+
+    You do not need to change anything in this class, ever.
+    """
+
+    def getStartState(self):
+        """
+        Returns the start state for the search problem.
+        """
+        util.raiseNotDefined()
+
+    def isGoalState(self, state):
+        """
+          state: Search state
+
+        Returns True if and only if the state is a valid goal state.
+        """
+        util.raiseNotDefined()
+
+    def getSuccessors(self, state):
+        """
+          state: Search state
+
+        For a given state, this should return a list of triples, (successor,
+        action, stepCost), where 'successor' is a successor to the current
+        state, 'action' is the action required to get there, and 'stepCost' is
+        the incremental cost of expanding to that successor.
+        """
+        util.raiseNotDefined()
+
+    def getCostOfActions(self, actions):
+        """
+         actions: A list of actions to take
+
+        This method returns the total cost of a particular sequence of actions.
+        The sequence must be composed of legal moves.
+        """
+        util.raiseNotDefined()
+
+
+def tinyMazeSearch(problem):
+    """
+    Returns a sequence of moves that solves tinyMaze.  For any other maze, the
+    sequence of moves will be incorrect, so only use this for tinyMaze.
+    """
+    from game import Directions
+    s = Directions.SOUTH
+    w = Directions.WEST
+    return  [s, s, w, s, w, w, s, w]
+
+
+def depthFirstSearch(problem):
+    """
+    Search the deepest nodes in the search tree first.
+
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
+
+    To get started, you might want to try some of these simple commands to
+    understand the search problem that is being passed in:
+"""
+   # print "Start:", problem.getStartState()
+   # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+   # print "Start's successors:", problem.getSuccessors(problem.getStartState())
+
+    dfs_stack = util.Stack()
+    return genericSearch(dfs_stack, problem)
+
+
+def breadthFirstSearch(problem):
+    """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
+    bfs_queue = util.Queue()
+    return genericSearch(bfs_queue, problem)
+
+
+
+def uniformCostSearch(problem):
+    """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
+    p_queue = util.PriorityQueueWithFunction(priorityfunction)
+    return genericSearch(p_queue, problem)
+
+def nullHeuristic(state, problem=None):
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
+def aStarSearch(problem, heuristic=nullHeuristic):
+    """Search the node that has the lowest combined cost and heuristic first."""
+    "*** YOUR CODE HERE ***"
+    a_star = util.PriorityQueueWithFunction(priorityfunction)
+    return genericSearch(a_star, problem, heuristic)
+
+def priorityfunction(node):
+  return node.cost
+
+def genericSearch(data_structure, problem, heuristic=nullHeuristic):
+
+
+    open_list_temp = []
+    # initiate a data structure
+    data_structure.push(Node(problem.getStartState(), "", 0, None))
+    open_list_temp.append(problem.getStartState())
+    # initiate a list for the closed list
+    closed_list = []
+
+    # while there are nodes in the data structure, continue.
+    while not data_structure.isEmpty():
+        # get the next node to check of the data structure
+        current = data_structure.pop()
+        open_list_temp.remove(current.cords)
+        # check if the current node is the goal node
+        if problem.isGoalState(current.cords):
+            # if it is, return the saved path
+            return getPath(current)
+        else:
+            # check each neighbor
+            for cords, direction, cost in problem.getSuccessors(current.cords):
+                # if the neighbor node
+                # wasn't visited yet, and it's cost could be lower than what we got
+                if ((cords not in closed_list) and (cords not in open_list_temp)):
+                    # set the new node with values
+                    node = Node(cords, direction, current.cost+cost+heuristic(cords, problem), current)
+                    # insert the new node to the data structure
+                    data_structure.push(node)
+                    open_list_temp.append(node.cords)
+        # add the node's cords to the closed list
+        closed_list.append(current.cords)
+
+    return False
+
+def getPath(Node):
+    goal_list = []
+
+    from game import Directions
+    current = Node
+    while current:
+        if current.direction is "West":
+            goal_list.append(Directions.WEST)
+        elif current.direction is "East":
+            goal_list.append(Directions.EAST)
+        elif current.direction is "North":
+            goal_list.append(Directions.NORTH)
+        elif current.direction is "South":
+            goal_list.append(Directions.SOUTH)
+        current = current.prev
+
+    return goal_list[::-1]
+
+# Abbreviations
+bfs = breadthFirstSearch
+dfs = depthFirstSearch
+astar = aStarSearch
+ucs = uniformCostSearch
+#Berkeley AI (CS188: Artificial Intelligence)
+#ai.berkeley.edu
